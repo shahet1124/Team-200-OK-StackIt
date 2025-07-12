@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import Answers from './Questions/Answers';
 import { useParams, useNavigate } from 'react-router-dom';
+import { isUserLoggedIn } from '../utils/check';
 
 export default function QuestionDetail() {
    const [newAnswer, setNewAnswer] = useState('');
@@ -44,6 +45,13 @@ export default function QuestionDetail() {
 
    // Handle answer submission
    const handleSubmitAnswer = async () => {
+      // Check if user is logged in
+      if (!isUserLoggedIn()) {
+         alert('Please login to submit an answer');
+         navigate('/Login');
+         return;
+      }
+
       if (newAnswer.trim()) {
          setIsSubmitting(true);
          try {
@@ -180,7 +188,7 @@ export default function QuestionDetail() {
                   </button> */}
                   <h1 className="text-3xl font-bold">StackIt</h1>
                </div>
-               <div className="flex items-center space-x-4">
+               {/* <div className="flex items-center space-x-4">
                   <button className="bg-transparent border border-white rounded-full px-4 py-2 text-sm hover:bg-white hover:text-black transition-colors">
                      Home
                   </button>
@@ -190,7 +198,7 @@ export default function QuestionDetail() {
                   <button className="bg-transparent border border-white rounded-full px-4 py-2 text-sm hover:bg-white hover:text-black transition-colors">
                      Settings
                   </button>
-               </div>
+               </div> */}
             </div>
 
             {/* Breadcrumb Navigation */}
@@ -416,13 +424,22 @@ export default function QuestionDetail() {
                      </div>
                      <button
                         onClick={handleSubmitAnswer}
-                        disabled={!newAnswer.trim() || isSubmitting}
-                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded transition-colors flex items-center space-x-2"
+                        disabled={(!newAnswer.trim() && isUserLoggedIn()) || isSubmitting}
+                        className={`${
+                           isUserLoggedIn() 
+                              ? 'bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600' 
+                              : 'bg-orange-600 hover:bg-orange-700'
+                        } disabled:cursor-not-allowed text-white px-6 py-2 rounded transition-colors flex items-center space-x-2`}
                      >
                         {isSubmitting ? (
                            <>
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                               <span>Submitting...</span>
+                           </>
+                        ) : !isUserLoggedIn() ? (
+                           <>
+                              <Send className="w-4 h-4" />
+                              <span>Login to Answer</span>
                            </>
                         ) : (
                            <>
