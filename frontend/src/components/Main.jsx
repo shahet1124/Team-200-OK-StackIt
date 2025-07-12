@@ -53,7 +53,7 @@ const Main = () => {
    };
 
    return (
-      <div className="min-h-screen" style={{ backgroundColor: '#141720' }}>
+      <div className="min-h-screen" style={{ backgroundColor: '#040404' }}>
          <GlassNavbar
             logo="MyBrand"
             logoIcon="M"

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { isUserLoggedIn } from '../utils/check.js';
 
 export default function StackItUI() {
    const [selectedFilter, setSelectedFilter] = useState('Newest Unanswered');
@@ -8,6 +10,9 @@ export default function StackItUI() {
    const [questions, setQuestions] = useState([]);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
+   const navigate = useNavigate();
+
+   const API_URL = import.meta.env.VITE_API_URL;
 
    // Fetch questions from API using fetch
    useEffect(() => {
@@ -15,7 +20,7 @@ export default function StackItUI() {
          try {
             setLoading(true);
             // Option 1: Direct call (requires CORS setup on backend)
-            const response = await fetch('https://e4282f6d1020.ngrok-free.app/questions', {
+            const response = await fetch(API_URL + "/questions", {
                method: 'GET',
                headers: {
                   'ngrok-skip-browser-warning': 'true',
@@ -52,6 +57,20 @@ export default function StackItUI() {
       fetchQuestions();
    }, []);
 
+   // Handle question click
+   const handleQuestionClick = (question) => {
+      const questionId = question._id;
+      navigate(`/question/${questionId}`);
+   };
+
+   // Handle Ask New Question button click
+   const handleAskNewQuestion = () => {
+      if (isUserLoggedIn()) {
+         navigate('/ask-new-question');
+      } else {
+         navigate('/Login');
+      }
+   };
 
    const filterOptions = [
       'Newest Unanswered',
@@ -81,11 +100,14 @@ export default function StackItUI() {
             </div>
 
             {/* Main Content Area */}
-            <div className="border border-gray-600 rounded-lg p-6">
+            <div className="border border-gray-600` rounded-lg p-6">
                {/* Controls Bar */}
                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-4">
-                     <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
+                     <button 
+                        onClick={handleAskNewQuestion}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+                     >
                         Ask New Question
                      </button>
 
@@ -147,7 +169,10 @@ export default function StackItUI() {
                            <div key={question._id || question.id} className="border-b border-gray-700 pb-4">
                               <div className="flex items-start justify-between">
                                  <div className="flex-1">
-                                    <h3 className="text-lg font-medium mb-2 hover:text-blue-400 cursor-pointer">
+                                    <h3
+                                       className="text-lg font-medium mb-2 hover:text-blue-400 cursor-pointer"
+                                       onClick={() => handleQuestionClick(question)}
+                                    >
                                        {question.title || 'Untitled Question'}
                                     </h3>
                                     <p className="text-gray-300 text-sm mb-3 line-clamp-2">
@@ -180,7 +205,7 @@ export default function StackItUI() {
                                  </div>
                                  <div className="ml-4 flex-shrink-0">
                                     <div className="bg-gray-700 text-white text-sm px-3 py-1 rounded">
-                                       {question.answers || question.answer_count || 0} ans
+                                       {question.answerCount || question.answerCount || 0} ans
                                     </div>
                                  </div>
                               </div>
