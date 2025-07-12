@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function StackItUI() {
    const [selectedFilter, setSelectedFilter] = useState('Newest Unanswered');
@@ -90,13 +90,15 @@ export default function StackItUI() {
             </div>
 
             {/* Main Content Area */}
-            <div className="border border-gray-600 rounded-lg p-6">
+            <div className="border border-gray-600` rounded-lg p-6">
                {/* Controls Bar */}
                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-4">
-                     <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
-                        Ask New Question
-                     </button>
+                     <Link to="/ask-new-question">
+                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
+                           Ask New Question
+                        </button>
+                     </Link>
 
                      <div className="relative">
                         <button className="bg-transparent border border-gray-500 rounded px-4 py-2 flex items-center space-x-2 hover:border-gray-400 transition-colors">
