@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, ArrowRight, Lock, User } from 'lucide-react';
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
 const AnimatedDiv = ({ children, className, delay = 0, ...props }) => {
    const [isVisible, setIsVisible] = useState(false);
@@ -40,9 +40,11 @@ export default function AMULoginPage() {
    const [showPassword, setShowPassword] = useState(false);
    const [currentImageIndex, setCurrentImageIndex] = useState(0);
    const [isLoaded, setIsLoaded] = useState(false);
+   const [isLoading, setIsLoading] = useState(false);
+   const navigate = useNavigate();
 
-   // Separate useState for email and password
-   const [email, setEmail] = useState('');
+   // Separate useState for username and password
+   const [username, setUsername] = useState('');
    const [password, setPassword] = useState('');
    const [rememberMe, setRememberMe] = useState(false);
 
@@ -75,19 +77,49 @@ export default function AMULoginPage() {
       return () => clearInterval(interval);
    }, []);
 
-   const handleButtonClick = () => {
-      // Log individual values
-      console.log('Email:', email);
-      console.log('Password:', password);
-      console.log('Remember Me:', rememberMe);
+   const handleButtonClick = async () => {
+      // Validate inputs
+      if (!username || !password) {
+         alert('Please fill in all fields');
+         return;
+      }
+
+      setIsLoading(true);
 
       try {
-         // In a real application, you would make an API call here
-         console.log('Login attempt with email:', email, 'and password:', password);
-         alert('Login successful!');
+         const API_URL = import.meta.env.VITE_API_URL;
+         
+         const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+               username: username,
+               password: password
+            })
+         });
+
+         const data = await response.json();
+
+         if (response.ok) {
+            // Store token and user data in localStorage
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            console.log('Login successful:', data);
+            
+            // Redirect to home page
+            navigate('/');
+         } else {
+            // Handle error response
+            alert(data.message || 'Login failed. Please check your credentials.');
+         }
       } catch (error) {
-         console.error('Error submitting form:', error);
-         alert('Something went wrong during login!');
+         console.error('Error during login:', error);
+         alert('Something went wrong during login. Please try again.');
+      } finally {
+         setIsLoading(false);
       }
    };
 
@@ -146,16 +178,16 @@ export default function AMULoginPage() {
 
                <div>
                   <AnimatedDiv delay={500} className="space-y-4 sm:space-y-6">
-                     {/* Email field */}
+                     {/* Username field */}
                      <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                            <User className="h-5 w-5 text-gray-400" />
                         </div>
                         <input
-                           type="email"
-                           placeholder="Email address"
-                           value={email}
-                           onChange={(e) => setEmail(e.target.value)}
+                           type="text"
+                           placeholder="Username"
+                           value={username}
+                           onChange={(e) => setUsername(e.target.value)}
                            required
                            className="w-full pl-10 pr-4 py-3 bg-gray-800/50 text-white rounded-xl border border-gray-700/50 focus:border-purple-500 focus:outline-none transition-all duration-300 placeholder-gray-500 focus:scale-[1.02] focus:shadow-lg focus:shadow-purple-500/25 hover:border-gray-600 hover:bg-gray-800/70 text-base"
                            style={{ backdropFilter: 'blur(8px)' }}
@@ -209,12 +241,22 @@ export default function AMULoginPage() {
                      {/* Login button */}
                      <button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 relative overflow-hidden group text-base"
+                        disabled={isLoading}
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 relative overflow-hidden group text-base disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                         onClick={handleButtonClick}
                      >
                         <span className="relative z-10 flex items-center justify-center gap-2">
-                           Sign in
-                           <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                           {isLoading ? (
+                              <>
+                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                 Signing in...
+                              </>
+                           ) : (
+                              <>
+                                 Sign in
+                                 <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                              </>
+                           )}
                         </span>
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                      </button>
