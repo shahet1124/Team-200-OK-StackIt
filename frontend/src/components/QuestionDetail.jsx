@@ -26,7 +26,6 @@ export default function QuestionDetail() {
   // Function to fetch the question
   const fetchQuestion = async () => {
     try {
-      console.log("questionId", questionId);
       const response = await fetch(`${API_URL}/questions/${questionId}`);
       if (!response.ok) throw new Error('Failed to fetch question');
       const data = await response.json();
