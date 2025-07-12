@@ -12,13 +12,15 @@ export default function StackItUI() {
    const [currentScreen, setCurrentScreen] = useState(1); // 1 = Home, 3 = Question Detail
    const [selectedQuestion, setSelectedQuestion] = useState(null);
 
+   const API_URL = import.meta.env.VITE_API_URL;
+
    // Fetch questions from API using fetch
    useEffect(() => {
       const fetchQuestions = async () => {
          try {
             setLoading(true);
             // Option 1: Direct call (requires CORS setup on backend)
-            const response = await fetch('https://e4282f6d1020.ngrok-free.app/questions', {
+            const response = await fetch(API_URL + "/questions", {
                method: 'GET',
                headers: {
                   'ngrok-skip-browser-warning': 'true',

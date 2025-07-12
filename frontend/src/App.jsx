@@ -12,9 +12,9 @@ function App() {
   return (
 
     <Routes>
-      <Route path="/" element={<Login />} />
+      {/* <Route path="/" element={<Login />} /> */}
       <Route path="/Register" element={<Register />} />
-      {/* <Route path="/" element={<Home2 />} /> */}
+      <Route path="/" element={<Home2 />} />
       {/* <Route path="/" element={<Main />} /> */}
     </Routes>
 

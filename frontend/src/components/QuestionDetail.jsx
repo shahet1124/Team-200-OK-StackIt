@@ -3,6 +3,7 @@ import {
    Bold, Italic, Strikethrough, List, ListOrdered, Link, Image,
    AlignLeft, AlignCenter, AlignRight, Smile, Send, Upload
 } from 'lucide-react';
+import Answers from './Questions/Answers';
 
 export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
    const [newAnswer, setNewAnswer] = useState('');
@@ -197,12 +198,13 @@ export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
                   </span>
                </div>
             </div>
+            {console.log("selectedQuestion",selectedQuestion)}
+            <Answers questionId={selectedQuestion._id} />
 
             {/* Answers Section */}
-            <div className="border border-gray-600 rounded-lg p-6 mb-6 bg-gray-800/30">
+            {/* <div className="border border-gray-600 rounded-lg p-6 mb-6 bg-gray-800/30">
                <h3 className="text-xl font-bold mb-4">Answers ({selectedQuestion?.answers || 2})</h3>
 
-               {/* Sample Answers */}
                <div className="space-y-6">
                   <div className="border-b border-gray-700 pb-6">
                      <div className="flex items-start space-x-4">
@@ -222,37 +224,12 @@ export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
                            <div className="text-sm text-gray-400 flex items-center space-x-4">
                               <span>Answered by User123</span>
                               <span>2 days ago</span>
-                              <button className="text-blue-400 hover:text-blue-300">Reply</button>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-
-                  <div className="border-b border-gray-700 pb-6">
-                     <div className="flex items-start space-x-4">
-                        <div className="flex flex-col items-center space-y-2">
-                           <button className="w-8 h-8 border border-gray-500 rounded flex items-center justify-center hover:bg-gray-700 transition-colors">
-                              ▲
-                           </button>
-                           <span className="text-sm font-medium">2</span>
-                           <button className="w-8 h-8 border border-gray-500 rounded flex items-center justify-center hover:bg-gray-700 transition-colors text-red-400">
-                              ▼
-                           </button>
-                        </div>
-                        <div className="flex-1">
-                           <p className="text-gray-300 mb-3 leading-relaxed">
-                              Another approach is to use connection pooling for better performance. Make sure to handle errors properly and close connections when done. Also consider using environment variables for your database configuration.
-                           </p>
-                           <div className="text-sm text-gray-400 flex items-center space-x-4">
-                              <span>Answered by DevExpert</span>
-                              <span>1 day ago</span>
-                              <button className="text-blue-400 hover:text-blue-300">Reply</button>
                            </div>
                         </div>
                      </div>
                   </div>
                </div>
-            </div>
+            </div> */}
 
             {/* Submit Answer Section */}
             <div className="border border-gray-600 rounded-lg p-6 bg-gray-800/30">
