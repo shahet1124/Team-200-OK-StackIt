@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { isUserLoggedIn } from '../utils/check.js';
 
 export default function StackItUI() {
    const [selectedFilter, setSelectedFilter] = useState('Newest Unanswered');
@@ -62,6 +63,15 @@ export default function StackItUI() {
       navigate(`/question/${questionId}`);
    };
 
+   // Handle Ask New Question button click
+   const handleAskNewQuestion = () => {
+      if (isUserLoggedIn()) {
+         navigate('/ask-new-question');
+      } else {
+         navigate('/Login');
+      }
+   };
+
    const filterOptions = [
       'Newest Unanswered',
       'Most Voted',
@@ -94,11 +104,12 @@ export default function StackItUI() {
                {/* Controls Bar */}
                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-4">
-                     <Link to="/ask-new-question">
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
-                           Ask New Question
-                        </button>
-                     </Link>
+                     <button 
+                        onClick={handleAskNewQuestion}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+                     >
+                        Ask New Question
+                     </button>
 
                      <div className="relative">
                         <button className="bg-transparent border border-gray-500 rounded px-4 py-2 flex items-center space-x-2 hover:border-gray-400 transition-colors">
