@@ -36,7 +36,7 @@ const FloatingElement = ({ children, className, delay = 0, style }) => {
    );
 };
 
-export default function AMURegisterPage() {
+export default function StackITRegisterPage() {
    const [showPassword, setShowPassword] = useState(false);
    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
    const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -203,14 +203,14 @@ export default function AMURegisterPage() {
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-purple-900/20"
                style={{ backdropFilter: 'blur(8px)' }} />
 
-            {/* AMU Logo */}
+            {/* StackIT Logo */}
             <AnimatedDiv
                className="absolute top-8 left-8 z-10"
                delay={300}
             >
                <div className="text-white text-3xl font-bold hover:scale-110 transition-all duration-300 cursor-pointer bg-white/10 rounded-lg px-4 py-2 border border-white/20"
                   style={{ backdropFilter: 'blur(8px)' }}>
-                  AMU
+                  StackIT
                </div>
             </AnimatedDiv>
 
@@ -232,7 +232,7 @@ export default function AMURegisterPage() {
                   </h1>
 
                   <p className="text-white/80 mb-6 text-lg">
-                     Join thousands of creators who trust AMU for their visual storytelling needs.
+                     Join thousands of creators who trust StackIT for their visual storytelling needs.
                   </p>
 
                   {/* Progress indicators */}
@@ -262,7 +262,7 @@ export default function AMURegisterPage() {
             <div className="absolute top-4 left-4 z-10 lg:hidden">
                <div className="text-white text-2xl font-bold bg-white/10 rounded-lg px-3 py-1 border border-white/20"
                   style={{ backdropFilter: 'blur(8px)' }}>
-                  AMU
+                  StackIT
                </div>
             </div>
 

@@ -36,7 +36,7 @@ const FloatingElement = ({ children, className, delay = 0, style }) => {
    );
 };
 
-export default function AMULoginPage() {
+export default function StackITLoginPage() {
    const [showPassword, setShowPassword] = useState(false);
    const [currentImageIndex, setCurrentImageIndex] = useState(0);
    const [isLoaded, setIsLoaded] = useState(false);
@@ -59,7 +59,7 @@ export default function AMULoginPage() {
    ];
 
    const heroTitles = [
-      "Welcome Back\nto AMU",
+      "Welcome Back\nto StackIT",
       "Your Journey\nContinues Here",
       "Ready to Create\nAmazing Memories?",
       "Login to Your\nCreative Space"
@@ -147,11 +147,11 @@ export default function AMULoginPage() {
             delay={0}
          >
             <div className="w-full max-w-md">
-               {/* Mobile AMU Logo */}
+               {/* Mobile StackIT Logo */}
                <AnimatedDiv delay={200} className="block lg:hidden text-center mb-8">
                   <div className="text-white text-3xl font-bold hover:scale-110 transition-all duration-300 cursor-pointer bg-white/10 rounded-lg px-4 py-2 border border-white/20 inline-block"
                      style={{ backdropFilter: 'blur(8px)' }}>
-                     AMU
+                     StackIT
                   </div>
                </AnimatedDiv>
 
@@ -283,7 +283,7 @@ export default function AMULoginPage() {
                {/* Mobile hero text */}
                <AnimatedDiv delay={900} className="block lg:hidden text-center mt-8">
                   <p className="text-gray-400 text-sm">
-                     Continue your creative journey with AMU's powerful tools and features.
+                     Continue your creative journey with StackIT's powerful tools and features.
                   </p>
                </AnimatedDiv>
             </div>
@@ -305,14 +305,14 @@ export default function AMULoginPage() {
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-purple-900/20"
                style={{ backdropFilter: 'blur(8px)' }} />
 
-            {/* AMU Logo */}
+            {/* StackIT Logo */}
             <AnimatedDiv
                className="absolute top-8 right-8 z-10"
                delay={300}
             >
                <div className="text-white text-3xl font-bold hover:scale-110 transition-all duration-300 cursor-pointer bg-white/10 rounded-lg px-4 py-2 border border-white/20"
                   style={{ backdropFilter: 'blur(8px)' }}>
-                  AMU
+                  StackIT
                </div>
             </AnimatedDiv>
 
@@ -334,7 +334,7 @@ export default function AMULoginPage() {
                   </h1>
 
                   <p className="text-white/80 mb-6 text-lg">
-                     Continue your creative journey with AMU's powerful tools and features.
+                     Continue your creative journey with StackIT's powerful tools and features.
                   </p>
 
                   {/* Progress indicators */}
