@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Search, ChevronDown, ChevronLeft, ChevronRight,
-  Plus, Eye, MessageCircle, ThumbsUp, Clock, User, Filter
+  Plus, Eye, MessageCircle, ThumbsUp, Clock, User, Filter,
+  Bell, X, Check, CheckCheck, Trash2
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { isUserLoggedIn } from '../utils/check.js';
@@ -16,6 +17,13 @@ export default function StackItUI() {
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [animatedQuestions, setAnimatedQuestions] = useState([]);
   const [itemsPerPage] = useState(10);
+  
+  // Notifications state
+  const [activeTab, setActiveTab] = useState('questions');
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [notificationsError, setNotificationsError] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
@@ -51,6 +59,145 @@ export default function StackItUI() {
     };
 
     fetchQuestions();
+  }, []);
+
+  // Get auth headers with token
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+      'ngrok-skip-browser-warning': 'true',
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    };
+  };
+
+  // Fetch Notifications
+  const fetchNotifications = async () => {
+    if (!isUserLoggedIn()) return;
+    
+    try {
+      setNotificationsLoading(true);
+      const response = await fetch(`${API_URL}/notifications`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+        mode: 'cors'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+      
+      // Count unread notifications
+      const unread = data.notifications?.filter(notif => !notif.isRead).length || 0;
+      setUnreadCount(unread);
+      
+      setNotificationsError(null);
+    } catch (err) {
+      setNotificationsError(err.message || 'Failed to fetch notifications');
+      console.error('Error fetching notifications:', err);
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
+
+  // Mark notification as read
+  const markAsRead = async (notificationId) => {
+    if (!isUserLoggedIn()) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/notifications/${notificationId}/read`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        mode: 'cors'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Update local state
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif._id === notificationId 
+            ? { ...notif, isRead: true }
+            : notif
+        )
+      );
+      
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+    }
+  };
+
+  // Mark all notifications as read
+  const markAllAsRead = async () => {
+    if (!isUserLoggedIn()) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/notifications/read-all`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        mode: 'cors'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Update local state
+      setNotifications(prev => 
+        prev.map(notif => ({ ...notif, isRead: true }))
+      );
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Error marking all notifications as read:', err);
+    }
+  };
+
+  // Delete notification
+  const deleteNotification = async (notificationId) => {
+    if (!isUserLoggedIn()) return;
+    
+    try {
+      const response = await fetch(`${API_URL}/notifications/${notificationId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+        mode: 'cors'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Update local state
+      const deletedNotif = notifications.find(n => n._id === notificationId);
+      setNotifications(prev => prev.filter(notif => notif._id !== notificationId));
+      
+      if (deletedNotif && !deletedNotif.isRead) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (err) {
+      console.error('Error deleting notification:', err);
+    }
+  };
+
+  // Fetch notifications when switching to notifications tab
+  useEffect(() => {
+    if (activeTab === 'notifications' && isUserLoggedIn()) {
+      fetchNotifications();
+    }
+  }, [activeTab]);
+
+  // Fetch notifications on component mount if user is logged in
+  useEffect(() => {
+    if (isUserLoggedIn()) {
+      fetchNotifications();
+    }
   }, []);
 
   // Handle filter change
@@ -181,7 +328,43 @@ export default function StackItUI() {
 
                {/* Main Content Area */}
                <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-8 shadow-2xl">
-                  {/* Controls Bar */}
+                  {/* Tab Navigation */}
+                  <div className="flex space-x-1 mb-6 sm:mb-8 bg-white/5 backdrop-blur-lg rounded-xl p-1">
+                     <button
+                        onClick={() => setActiveTab('questions')}
+                        className={`flex-1 px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base ${
+                           activeTab === 'questions'
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                              : 'text-gray-300 hover:text-white hover:bg-white/10'
+                        }`}
+                     >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Questions</span>
+                     </button>
+                     {isUserLoggedIn() && (
+                        <button
+                           onClick={() => setActiveTab('notifications')}
+                           className={`flex-1 px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2 text-sm sm:text-base relative ${
+                              activeTab === 'notifications'
+                                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                                 : 'text-gray-300 hover:text-white hover:bg-white/10'
+                           }`}
+                        >
+                           <Bell className="w-4 h-4" />
+                           <span>Notifications</span>
+                           {unreadCount > 0 && (
+                              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                 {unreadCount > 99 ? '99+' : unreadCount}
+                              </span>
+                           )}
+                        </button>
+                     )}
+                  </div>
+
+                  {/* Questions Tab Content */}
+                  {activeTab === 'questions' && (
+                     <>
+                        {/* Controls Bar */}
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 space-y-4 sm:space-y-0">
                      <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
                         <button 
@@ -415,6 +598,130 @@ export default function StackItUI() {
                         >
                            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
+                     </div>
+                  )}
+                     </>
+                  )}
+
+                  {/* Notifications Tab Content */}
+                  {activeTab === 'notifications' && (
+                     <div className="space-y-6">
+                        {!isUserLoggedIn() ? (
+                           <div className="text-center py-12 sm:py-16">
+                              <p className="text-gray-400 text-base sm:text-lg">Please log in to view notifications.</p>
+                           </div>
+                        ) : (
+                           <>
+                              {/* Notifications Header */}
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+                                 <h2 className="text-xl sm:text-2xl font-bold">Notifications</h2>
+                                 {notifications.length > 0 && (
+                                    <div className="flex space-x-2">
+                                       {unreadCount > 0 && (
+                                          <button
+                                             onClick={markAllAsRead}
+                                             className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 sm:px-4 py-2 rounded-xl font-medium hover:from-green-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 text-sm sm:text-base flex items-center space-x-2"
+                                          >
+                                             <CheckCheck className="w-4 h-4" />
+                                             <span>Mark All Read</span>
+                                          </button>
+                                       )}
+                                    </div>
+                                 )}
+                              </div>
+
+                              {/* Notifications Loading */}
+                              {notificationsLoading && (
+                                 <div className="text-center py-12 sm:py-16">
+                                    <div className="relative">
+                                       <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+                                    </div>
+                                    <p className="mt-4 sm:mt-6 text-gray-300 animate-pulse text-sm sm:text-base">Loading notifications...</p>
+                                 </div>
+                              )}
+
+                              {/* Notifications Error */}
+                              {notificationsError && (
+                                 <div className="text-center py-12 sm:py-16">
+                                    <div className="bg-red-500/10 backdrop-blur-lg border border-red-500/20 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 max-w-md mx-auto">
+                                       <p className="text-red-200 text-sm sm:text-base">Error loading notifications: {notificationsError}</p>
+                                    </div>
+                                    <button
+                                       onClick={fetchNotifications}
+                                       className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-medium hover:from-red-600 hover:to-pink-700 transition-all duration-300 hover:scale-105 text-sm sm:text-base"
+                                    >
+                                       Retry
+                                    </button>
+                                 </div>
+                              )}
+
+                              {/* Notifications List */}
+                              {!notificationsLoading && !notificationsError && (
+                                 <div className="space-y-4">
+                                    {notifications.length === 0 ? (
+                                       <div className="text-center py-12 sm:py-16">
+                                          <Bell className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                          <p className="text-gray-400 text-base sm:text-lg">No notifications yet.</p>
+                                       </div>
+                                    ) : (
+                                       notifications.map((notification) => (
+                                          <div
+                                             key={notification._id}
+                                             className={`group bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-4 sm:p-6 transition-all duration-300 hover:bg-white/10 hover:border-white/20 ${
+                                                !notification.isRead ? 'bg-blue-500/5 border-blue-500/20' : ''
+                                             }`}
+                                          >
+                                             <div className="flex items-start justify-between space-x-4">
+                                                <div className="flex-1">
+                                                   <div className="flex items-center space-x-2 mb-2">
+                                                      {!notification.isRead && (
+                                                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                      )}
+                                                      <h3 className="font-semibold text-white text-sm sm:text-base">
+                                                         {notification.title || 'Notification'}
+                                                      </h3>
+                                                   </div>
+                                                   <p className="text-gray-300 mb-3 text-sm sm:text-base">
+                                                      {notification.message || notification.content || 'No message'}
+                                                   </p>
+                                                   <div className="flex items-center space-x-4 text-xs sm:text-sm text-gray-400">
+                                                      <div className="flex items-center space-x-1">
+                                                         <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                                                         <span>{new Date(notification.createdAt).toLocaleDateString()}</span>
+                                                      </div>
+                                                      {notification.type && (
+                                                         <span className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-lg border border-white/10 px-2 py-1 rounded-full">
+                                                            {notification.type}
+                                                         </span>
+                                                      )}
+                                                   </div>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                   {!notification.isRead && (
+                                                      <button
+                                                         onClick={() => markAsRead(notification._id)}
+                                                         className="p-2 bg-green-500/20 backdrop-blur-lg border border-green-500/30 rounded-lg hover:bg-green-500/30 transition-all duration-300 hover:scale-105"
+                                                         title="Mark as read"
+                                                      >
+                                                         <Check className="w-4 h-4 text-green-400" />
+                                                      </button>
+                                                   )}
+                                                   <button
+                                                      onClick={() => deleteNotification(notification._id)}
+                                                      className="p-2 bg-red-500/20 backdrop-blur-lg border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-all duration-300 hover:scale-105"
+                                                      title="Delete notification"
+                                                   >
+                                                      <Trash2 className="w-4 h-4 text-red-400" />
+                                                   </button>
+                                                </div>
+                                             </div>
+                                          </div>
+                                       ))
+                                    )}
+                                 </div>
+                              )}
+                           </>
+                        )}
                      </div>
                   )}
                </div>
