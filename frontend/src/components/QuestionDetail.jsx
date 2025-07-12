@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
    Bold, Italic, Strikethrough, List, ListOrdered, Link, Image,
    AlignLeft, AlignCenter, AlignRight, Smile, Send, Upload
@@ -6,7 +6,7 @@ import {
 import Answers from './Questions/Answers';
 import { useParams } from 'react-router-dom';
 
-export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
+export default function QuestionDetail() {
    const [newAnswer, setNewAnswer] = useState('');
    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
    const [showLinkDialog, setShowLinkDialog] = useState(false);
@@ -20,6 +20,27 @@ export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
 
    // Common emojis for quick insertion
    const commonEmojis = ['😀', '😂', '😍', '🤔', '👍', '👎', '❤️', '🔥', '💯', '🎉', '🚀', '💡', '⚡', '🌟', '✨', '🎯'];
+   const [selectedQuestion, setQuestion] = useState(null);
+   const API_URL = import.meta.env.VITE_API_URL;
+
+  // Function to fetch the question
+  const fetchQuestion = async () => {
+    try {
+      console.log("questionId", questionId);
+      const response = await fetch(`${API_URL}/questions/${questionId}`);
+      if (!response.ok) throw new Error('Failed to fetch question');
+      const data = await response.json();
+      setQuestion(data.question);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  // Fetch on mount
+  useEffect(() => {
+    fetchQuestion();
+  }, []);
+
 
    // Handle answer submission
    const handleSubmitAnswer = async () => {
@@ -145,6 +166,7 @@ export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
 
    return (
       <div className="min-h-screen text-white p-6" style={{ backgroundColor: '#141720' }}>
+      {console.log('Selected Question:', selectedQuestion)}
          <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
