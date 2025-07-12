@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { isUserLoggedIn } from '../utils/check.js';
 
 export default function StackItUI() {
-   const [selectedFilter, setSelectedFilter] = useState('Newest Unanswered');
+   const [selectedFilter, setSelectedFilter] = useState('Newest Answered');
    const [searchQuery, setSearchQuery] = useState('');
    const [currentPage, setCurrentPage] = useState(1);
    const [questions, setQuestions] = useState([]);
@@ -59,16 +59,17 @@ export default function StackItUI() {
       fetchQuestions();
    }, []);
 
-   // Animate questions on load
+   // Animate questions on load or filter change
    useEffect(() => {
       if (questions.length > 0) {
+         setAnimatedQuestions([]); // Reset animations
          questions.forEach((_, index) => {
             setTimeout(() => {
                setAnimatedQuestions(prev => [...prev, index]);
             }, index * 150);
          });
       }
-   }, [questions]);
+   }, [questions, selectedFilter, searchQuery]);
 
    // Handle question click - ORIGINAL FUNCTION PRESERVED
    const handleQuestionClick = (question) => {
@@ -88,23 +89,70 @@ export default function StackItUI() {
    const handleFilterChange = (filter) => {
       setSelectedFilter(filter);
       setShowFilterDropdown(false);
+      // Reset animation for new sorted order
+      setAnimatedQuestions([]);
    };
 
    const filterOptions = [
-      'Newest Unanswered',
+      'Newest Answered',
       'Most Voted',
-      'Recent Activity',
-      'Most Views'
+      'Most Answers'
    ];
 
    const totalPages = 7;
    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
-   // Filter questions based on search query - ORIGINAL LOGIC PRESERVED
-   const filteredQuestions = questions.filter(question =>
-      question.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      question.description?.toLowerCase().includes(searchQuery.toLowerCase())
-   );
+   // Filter questions based on search query and selected filter
+   const filteredQuestions = questions
+      .filter(question =>
+         question.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         question.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .sort((a, b) => {
+         switch (selectedFilter) {
+            case 'Newest Answered':
+               // Sort by questions that have answers, with most recent answers first
+               const aHasAnswers = (a.answerCount || 0) > 0;
+               const bHasAnswers = (b.answerCount || 0) > 0;
+               
+               if (aHasAnswers && !bHasAnswers) return -1;
+               if (!aHasAnswers && bHasAnswers) return 1;
+               if (aHasAnswers && bHasAnswers) {
+                  // Both have answers, sort by creation date (most recent first)
+                  return new Date(b.createdAt) - new Date(a.createdAt);
+               }
+               // Neither has answers, sort by creation date
+               return new Date(b.createdAt) - new Date(a.createdAt);
+               
+            case 'Most Voted':
+               // Sort by vote count (highest first)
+               const aVotes = a.votes || 0;
+               const bVotes = b.votes || 0;
+               return bVotes - aVotes;
+               
+            case 'Most Answers':
+               // Sort by answer count (highest first)
+               const aAnswers = a.answerCount || 0;
+               const bAnswers = b.answerCount || 0;
+               return bAnswers - aAnswers;
+               
+            default:
+               // Default to newest first
+               return new Date(b.createdAt) - new Date(a.createdAt);
+         }
+      });
+
+   // Animate filtered questions when they change
+   useEffect(() => {
+      if (filteredQuestions.length > 0) {
+         setAnimatedQuestions([]); // Reset animations
+         filteredQuestions.forEach((_, index) => {
+            setTimeout(() => {
+               setAnimatedQuestions(prev => [...prev, index]);
+            }, index * 100);
+         });
+      }
+   }, [filteredQuestions.length, selectedFilter, searchQuery]);
 
    return (
       <div className="min-h-screen relative overflow-hidden" style={{
@@ -282,13 +330,17 @@ export default function StackItUI() {
 
                                     {/* Question Stats */}
                                     <div className="ml-6 flex flex-col items-center space-y-3">
-                                       {question.votes && (
+                                       {question.votes !== undefined && (
                                           <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-lg border border-white/10 text-white text-sm px-4 py-2 rounded-xl flex items-center space-x-2">
                                              <ThumbsUp className="w-4 h-4" />
                                              <span>{question.votes}</span>
                                           </div>
                                        )}
-                                       <div className="bg-gradient-to-r from-blue-500/20 to-cyan-500/20 backdrop-blur-lg border border-white/10 text-white text-sm px-4 py-2 rounded-xl flex items-center space-x-2">
+                                       <div className={`backdrop-blur-lg border border-white/10 text-white text-sm px-4 py-2 rounded-xl flex items-center space-x-2 ${
+                                          (question.answerCount || 0) > 0 
+                                             ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20' 
+                                             : 'bg-gradient-to-r from-gray-500/20 to-gray-600/20'
+                                       }`}>
                                           <MessageCircle className="w-4 h-4" />
                                           <span>{question.answerCount || 0}</span>
                                        </div>

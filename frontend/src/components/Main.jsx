@@ -56,8 +56,8 @@ const Main = () => {
    return (
       <div className="min-h-screen" style={{ backgroundColor: '#040404' }}>
          <GlassNavbar
-            logo="MyBrand"
-            logoIcon="M"
+            logo="StackIt"
+            logoIcon="S"
             navItems={customNavItems}
             ctaText="Get Started"
             onCtaClick={handleCtaClick}
