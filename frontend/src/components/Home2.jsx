@@ -1,196 +1,153 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronDown, ChevronLeft, ChevronRight, Plus, Eye, MessageCircle, ThumbsUp, Clock, User, Filter, Sparkles } from 'lucide-react';
+import {
+  Search, ChevronDown, ChevronLeft, ChevronRight,
+  Plus, Eye, MessageCircle, ThumbsUp, Clock, User, Filter
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { isUserLoggedIn } from '../utils/check.js';
 
 export default function StackItUI() {
-   const [selectedFilter, setSelectedFilter] = useState('Newest Answered');
-   const [searchQuery, setSearchQuery] = useState('');
-   const [currentPage, setCurrentPage] = useState(1);
-   const [questions, setQuestions] = useState([]);
-   const [loading, setLoading] = useState(true);
-   const [error, setError] = useState(null);
-   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-   const [animatedQuestions, setAnimatedQuestions] = useState([]);
-   const [itemsPerPage] = useState(10); // Default limit of 10 items per page
-   const navigate = useNavigate();
+  const [selectedFilter, setSelectedFilter] = useState('Newest Answered');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [animatedQuestions, setAnimatedQuestions] = useState([]);
+  const [itemsPerPage] = useState(10);
 
-   const API_URL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
-   // Fetch questions from API using fetch - ORIGINAL API CODE PRESERVED
-   useEffect(() => {
-      const fetchQuestions = async () => {
-         try {
-            setLoading(true);
-            // Option 1: Direct call (requires CORS setup on backend)
-            const response = await fetch(API_URL + "/questions?page=1&limit=100", {
-               method: 'GET',
-               headers: {
-                  'ngrok-skip-browser-warning': 'true',
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json'
-               },
-               mode: 'cors'
-            });
+  // Fetch Questions
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_URL}/questions?page=1&limit=100`, {
+          method: 'GET',
+          headers: {
+            'ngrok-skip-browser-warning': 'true',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          mode: 'cors'
+        });
 
-            // Option 2: Use proxy (uncomment if CORS still doesn't work)
-            // const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://e4282f6d1020.ngrok-free.app/questions'), {
-            //    method: 'GET',
-            //    headers: {
-            //       'Content-Type': 'application/json',
-            //    }
-            // });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-            if (!response.ok) {
-               throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('API Response:', data); // Debug log
-            setQuestions(Array.isArray(data.questions) ? data.questions : []);
-            setError(null);
-         } catch (err) {
-            setError(err.message || 'Failed to fetch questions');
-            console.error('Error fetching questions:', err);
-         } finally {
-            setLoading(false);
-         }
-      };
-
-      fetchQuestions();
-   }, []);
-
-   // Animate questions on load or filter change
-   useEffect(() => {
-      if (questions.length > 0) {
-         setAnimatedQuestions([]); // Reset animations
-         questions.forEach((_, index) => {
-            setTimeout(() => {
-               setAnimatedQuestions(prev => [...prev, index]);
-            }, index * 150);
-         });
+        const data = await response.json();
+        setQuestions(Array.isArray(data.questions) ? data.questions : []);
+        setError(null);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch questions');
+        console.error('Error fetching questions:', err);
+      } finally {
+        setLoading(false);
       }
-   }, [questions, selectedFilter, searchQuery]);
+    };
 
-   // Handle question click - ORIGINAL FUNCTION PRESERVED
-   const handleQuestionClick = (question) => {
-      const questionId = question._id;
-      navigate(`/question/${questionId}`);
-   };
+    fetchQuestions();
+  }, []);
 
-   // Handle ask new question click - check authentication
-   const handleAskQuestionClick = () => {
-      if (isUserLoggedIn()) {
-         navigate('/ask-new-question');
-      } else {
-         navigate('/login');
+  // Handle filter change
+  const handleFilterChange = (filter) => {
+    setSelectedFilter(filter);
+    setShowFilterDropdown(false);
+    setAnimatedQuestions([]);
+  };
+
+  // Filter dropdown options
+  const filterOptions = [
+    'Newest Answered',
+    'Newest Unanswered',
+    'Most Answers'
+  ];
+
+  // Filter + sort
+  const filteredQuestions = questions
+    .filter(q =>
+      q.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      q.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (selectedFilter) {
+        case 'Newest Answered': {
+          const aHasAnswers = (a.answerCount || 0) > 0;
+          const bHasAnswers = (b.answerCount || 0) > 0;
+          if (aHasAnswers && !bHasAnswers) return -1;
+          if (!aHasAnswers && bHasAnswers) return 1;
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        case 'Newest Unanswered': {
+          const aNoAnswers = (a.answerCount || 0) === 0;
+          const bNoAnswers = (b.answerCount || 0) === 0;
+          if (aNoAnswers && !bNoAnswers) return -1;
+          if (!aNoAnswers && bNoAnswers) return 1;
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        case 'Most Answers': {
+          const aAnswers = a.answerCount || 0;
+          const bAnswers = b.answerCount || 0;
+          return bAnswers - aAnswers;
+        }
+        default:
+          return new Date(b.createdAt) - new Date(a.createdAt);
       }
-   };
+    });
 
-   const handleFilterChange = (filter) => {
-      setSelectedFilter(filter);
-      setShowFilterDropdown(false);
-      // Reset animation for new sorted order
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+  // Animate on questions change
+  useEffect(() => {
+    if (paginatedQuestions.length > 0) {
       setAnimatedQuestions([]);
-   };
-
-   const filterOptions = [
-      'Newest Answered',
-      'Most Voted',
-      'Most Answers'
-   ];
-
-   // Filter questions based on search query and selected filter
-   const filteredQuestions = questions
-      .filter(question =>
-         question.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-         question.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .sort((a, b) => {
-         switch (selectedFilter) {
-            case 'Newest Answered':
-               // Sort by questions that have answers, with most recent answers first
-               const aHasAnswers = (a.answerCount || 0) > 0;
-               const bHasAnswers = (b.answerCount || 0) > 0;
-               
-               if (aHasAnswers && !bHasAnswers) return -1;
-               if (!aHasAnswers && bHasAnswers) return 1;
-               if (aHasAnswers && bHasAnswers) {
-                  // Both have answers, sort by creation date (most recent first)
-                  return new Date(b.createdAt) - new Date(a.createdAt);
-               }
-               // Neither has answers, sort by creation date
-               return new Date(b.createdAt) - new Date(a.createdAt);
-               
-            case 'Most Voted':
-               // Sort by vote count (highest first)
-               const aVotes = a.votes || 0;
-               const bVotes = b.votes || 0;
-               return bVotes - aVotes;
-               
-            case 'Most Answers':
-               // Sort by answer count (highest first)
-               const aAnswers = a.answerCount || 0;
-               const bAnswers = b.answerCount || 0;
-               return bAnswers - aAnswers;
-               
-            default:
-               // Default to newest first
-               return new Date(b.createdAt) - new Date(a.createdAt);
-         }
+      paginatedQuestions.forEach((_, index) => {
+        setTimeout(() => {
+          setAnimatedQuestions(prev => [...prev, index]);
+        }, index * 100);
       });
+    }
+  }, [paginatedQuestions.length, selectedFilter, searchQuery, currentPage]);
 
-   // Calculate pagination
-   const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
-   const startIndex = (currentPage - 1) * itemsPerPage;
-   const endIndex = startIndex + itemsPerPage;
-   const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedFilter]);
 
-   // Generate page numbers for pagination display
-   const getPageNumbers = () => {
-      const pages = [];
-      const maxVisiblePages = 5;
-      
-      if (totalPages <= maxVisiblePages) {
-         for (let i = 1; i <= totalPages; i++) {
-            pages.push(i);
-         }
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 5; i++) pages.push(i);
+      } else if (currentPage >= totalPages - 2) {
+        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
       } else {
-         if (currentPage <= 3) {
-            for (let i = 1; i <= 5; i++) {
-               pages.push(i);
-            }
-         } else if (currentPage >= totalPages - 2) {
-            for (let i = totalPages - 4; i <= totalPages; i++) {
-               pages.push(i);
-            }
-         } else {
-            for (let i = currentPage - 2; i <= currentPage + 2; i++) {
-               pages.push(i);
-            }
-         }
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) pages.push(i);
       }
-      return pages;
-   };
+    }
+    return pages;
+  };
 
-   const pageNumbers = getPageNumbers();
+  const pageNumbers = getPageNumbers();
 
-   // Animate filtered questions when they change
-   useEffect(() => {
-      if (paginatedQuestions.length > 0) {
-         setAnimatedQuestions([]); // Reset animations
-         paginatedQuestions.forEach((_, index) => {
-            setTimeout(() => {
-               setAnimatedQuestions(prev => [...prev, index]);
-            }, index * 100);
-         });
-      }
-   }, [paginatedQuestions.length, selectedFilter, searchQuery, currentPage]);
+  const handleAskQuestionClick = () => {
+    if (isUserLoggedIn()) navigate('/ask-new-question');
+    else navigate('/login');
+  };
 
-   // Reset to first page when search query or filter changes
-   useEffect(() => {
-      setCurrentPage(1);
-   }, [searchQuery, selectedFilter]);
+  const handleQuestionClick = (question) => {
+    navigate(`/question/${question._id}`);
+  };
 
    return (
       <div className="min-h-screen relative overflow-hidden" style={{
