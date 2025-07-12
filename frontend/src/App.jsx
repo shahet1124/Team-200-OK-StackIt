@@ -16,9 +16,10 @@ function App() {
     <Routes>
       <Route path="/Login" element={<Login />} />
       <Route path="/Register" element={<Register />} />
-      <Route path="/" element={<Home2 />} />
+      {/* <Route path="/" element={<Home2 />} /> */}
       <Route path="/question/:questionId" element={<QuestionDetail />} />
       <Route path='/ask-new-question' element={<AskNewQuestion />} />
+      <Route path="/" element={<Main />} />
       {/* <Route path="/" element={<Main />} /> */}
     </Routes>
 
