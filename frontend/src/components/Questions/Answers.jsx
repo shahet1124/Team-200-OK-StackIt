@@ -92,6 +92,12 @@ const Answers = ({ questionId, refresh }) => {
       }
    };
 
+   // Helper to add target _blank to all links
+   function addTargetBlankToLinks(html) {
+     if (!html) return html;
+     return html.replace(/<a /g, '<a target="_blank" rel="noopener noreferrer" ');
+   }
+
    if (loading) {
       return (
          <div className="flex justify-center items-center py-8">
@@ -146,7 +152,7 @@ const Answers = ({ questionId, refresh }) => {
                      </div>
                      <div className="flex-1">
                         <div className="text-gray-300 mb-3 leading-relaxed" 
-                             dangerouslySetInnerHTML={{ __html: answer.content }}>
+                             dangerouslySetInnerHTML={{ __html: addTargetBlankToLinks(answer.content) }}>
                         </div>
                         <div className="text-sm text-gray-400 flex items-center space-x-4">
                            <span>Answered by {answer.userId.username}</span>

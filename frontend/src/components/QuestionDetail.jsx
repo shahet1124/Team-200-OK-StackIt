@@ -120,7 +120,19 @@ export default function QuestionDetail() {
    // Insert link
    const insertLink = () => {
       if (linkUrl.trim()) {
-         editor?.chain().focus().setLink({ href: linkUrl }).run();
+         let url = linkUrl.trim();
+         // Always prepend https:// if not starting with http:// or https://
+         if (!/^https?:\/\//i.test(url)) {
+            url = 'https://' + url;
+         }
+         const { state, view } = editor;
+         const { from, to } = state.selection;
+         let text = linkText.trim() || url;
+         // If user has selected text, use it as link text
+         if (from !== to) {
+            text = state.doc.textBetween(from, to) || text;
+         }
+         editor.chain().focus().insertContent(`<a href='${url}' target='_blank' rel='noopener noreferrer'>${text}</a>`).run();
          setShowLinkDialog(false);
          setLinkUrl('');
          setLinkText('');
@@ -147,10 +159,11 @@ export default function QuestionDetail() {
          color: #e5e7eb !important;
          min-height: 192px !important;
          padding: 1rem !important;
-         font-size: 14px !important;
+         font-size: 16px !important;
          outline: none !important;
          line-height: 1.6 !important;
          border: none !important;
+         font-family: 'Segoe UI', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Arial', sans-serif !important;
       }
       .answer-rich-text-editor:focus {
          outline: none !important;
@@ -210,7 +223,21 @@ export default function QuestionDetail() {
       .answer-rich-text-editor p {
          margin: 0.5rem 0 !important;
       }
+      .answer-rich-text-editor span, .answer-rich-text-editor em, .answer-rich-text-editor strong {
+         font-family: inherit !important;
+      }
+      .answer-rich-text-editor .emoji, .answer-rich-text-editor span[role="img"] {
+         font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI', 'Arial', sans-serif !important;
+         font-size: 1.25em !important;
+         vertical-align: middle !important;
+      }
    `;
+
+   // Helper to add target _blank to all links
+   function addTargetBlankToLinks(html) {
+     if (!html) return html;
+     return html.replace(/<a /g, '<a target="_blank" rel="noopener noreferrer" ');
+   }
 
    return (
       <div className="min-h-screen text-white p-6" style={{ backgroundColor: '#141720' }}>
@@ -255,7 +282,7 @@ export default function QuestionDetail() {
             <div className="border border-gray-600 rounded-lg p-6 mb-6 bg-gray-800/30">
                <h2 className="text-2xl font-bold mb-4">{selectedQuestion?.title || 'Question Title'}</h2>
                <div className="text-gray-300 mb-4 leading-relaxed" 
-                    dangerouslySetInnerHTML={{ __html: selectedQuestion?.description || 'Question description goes here...' }}>
+                    dangerouslySetInnerHTML={{ __html: addTargetBlankToLinks(selectedQuestion?.description || 'Question description goes here...') }}>
                </div>
 
                {/* Tags */}
@@ -383,13 +410,13 @@ export default function QuestionDetail() {
                                        <Smile className="w-4 h-4" />
                                     </button>
                                     {showEmojiPicker && (
-                                       <div className="absolute top-full left-0 mt-2 bg-gray-800 border border-gray-600 rounded-lg p-3 z-10 shadow-lg">
+                                       <div className="absolute top-full left-0 mt-2 bg-gray-800 border border-gray-600 rounded-lg p-3 z-10 shadow-lg emoji-picker-popup">
                                           <div className="grid grid-cols-8 gap-1">
                                              {commonEmojis.map((emoji, index) => (
                                                 <button
                                                    key={index}
                                                    onClick={() => insertEmoji(emoji)}
-                                                   className="p-1 hover:bg-gray-700 rounded text-lg"
+                                                   className="p-1 hover:bg-gray-700 rounded text-lg emoji-btn"
                                                 >
                                                    {emoji}
                                                 </button>
@@ -487,6 +514,33 @@ export default function QuestionDetail() {
                </div>
             </div>
          )}
+         {/* Emoji Picker Styling */}
+         <style>{`
+           .emoji-picker-popup img {
+             width: 2rem !important;
+             height: 2rem !important;
+             object-fit: contain !important;
+             display: block;
+             margin: 0 auto;
+           }
+           .emoji-picker-popup button {
+             width: 2.5rem !important;
+             height: 2.5rem !important;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             padding: 0 !important;
+             background: none !important;
+             border: none !important;
+             box-shadow: none !important;
+           }
+           .emoji-picker-popup span {
+             font-size: 1.5rem !important;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+           }
+         `}</style>
       </div>
    );
 }

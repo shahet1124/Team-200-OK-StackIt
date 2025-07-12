@@ -155,9 +155,10 @@ export default function AskNewQuestion() {
          color: white !important;
          min-height: 150px !important;
          padding: 1rem !important;
-         font-size: 14px !important;
+         font-size: 16px !important;
          outline: none !important;
          line-height: 1.6 !important;
+         font-family: 'Segoe UI', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Arial', sans-serif !important;
       }
       .rich-text-editor:focus {
          box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.5) !important;
@@ -214,6 +215,17 @@ export default function AskNewQuestion() {
          background: none !important;
          padding: 0 !important;
          color: #fbbf24 !important;
+      }
+      .rich-text-editor p {
+         margin: 0.5rem 0 !important;
+      }
+      .rich-text-editor span, .rich-text-editor em, .rich-text-editor strong {
+         font-family: inherit !important;
+      }
+      .rich-text-editor .emoji, .rich-text-editor span[role="img"] {
+         font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI', 'Arial', sans-serif !important;
+         font-size: 1.25em !important;
+         vertical-align: middle !important;
       }
    `;
 
