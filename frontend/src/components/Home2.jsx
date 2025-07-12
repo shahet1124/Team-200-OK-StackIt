@@ -12,6 +12,7 @@ export default function StackItUI() {
    const [error, setError] = useState(null);
    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
    const [animatedQuestions, setAnimatedQuestions] = useState([]);
+   const [itemsPerPage] = useState(10); // Default limit of 10 items per page
    const navigate = useNavigate();
 
    const API_URL = import.meta.env.VITE_API_URL;
@@ -22,7 +23,7 @@ export default function StackItUI() {
          try {
             setLoading(true);
             // Option 1: Direct call (requires CORS setup on backend)
-            const response = await fetch(API_URL + "/questions", {
+            const response = await fetch(API_URL + "/questions?page=1&limit=100", {
                method: 'GET',
                headers: {
                   'ngrok-skip-browser-warning': 'true',
@@ -99,9 +100,6 @@ export default function StackItUI() {
       'Most Answers'
    ];
 
-   const totalPages = 7;
-   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
-
    // Filter questions based on search query and selected filter
    const filteredQuestions = questions
       .filter(question =>
@@ -142,17 +140,57 @@ export default function StackItUI() {
          }
       });
 
+   // Calculate pagination
+   const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage);
+   const startIndex = (currentPage - 1) * itemsPerPage;
+   const endIndex = startIndex + itemsPerPage;
+   const paginatedQuestions = filteredQuestions.slice(startIndex, endIndex);
+
+   // Generate page numbers for pagination display
+   const getPageNumbers = () => {
+      const pages = [];
+      const maxVisiblePages = 5;
+      
+      if (totalPages <= maxVisiblePages) {
+         for (let i = 1; i <= totalPages; i++) {
+            pages.push(i);
+         }
+      } else {
+         if (currentPage <= 3) {
+            for (let i = 1; i <= 5; i++) {
+               pages.push(i);
+            }
+         } else if (currentPage >= totalPages - 2) {
+            for (let i = totalPages - 4; i <= totalPages; i++) {
+               pages.push(i);
+            }
+         } else {
+            for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+               pages.push(i);
+            }
+         }
+      }
+      return pages;
+   };
+
+   const pageNumbers = getPageNumbers();
+
    // Animate filtered questions when they change
    useEffect(() => {
-      if (filteredQuestions.length > 0) {
+      if (paginatedQuestions.length > 0) {
          setAnimatedQuestions([]); // Reset animations
-         filteredQuestions.forEach((_, index) => {
+         paginatedQuestions.forEach((_, index) => {
             setTimeout(() => {
                setAnimatedQuestions(prev => [...prev, index]);
             }, index * 100);
          });
       }
-   }, [filteredQuestions.length, selectedFilter, searchQuery]);
+   }, [paginatedQuestions.length, selectedFilter, searchQuery, currentPage]);
+
+   // Reset to first page when search query or filter changes
+   useEffect(() => {
+      setCurrentPage(1);
+   }, [searchQuery, selectedFilter]);
 
    return (
       <div className="min-h-screen relative overflow-hidden" style={{
@@ -274,7 +312,13 @@ export default function StackItUI() {
                               <p className="text-gray-400 text-lg">No questions found.</p>
                            </div>
                         ) : (
-                           filteredQuestions.map((question, index) => (
+                           <>
+                              {/* Pagination Info */}
+                              <div className="text-sm text-gray-400 mb-4">
+                                 Showing {startIndex + 1}-{Math.min(endIndex, filteredQuestions.length)} of {filteredQuestions.length} questions
+                              </div>
+                              
+                              {paginatedQuestions.map((question, index) => (
                               <div
                                  key={question._id || question.id}
                                  className={`group bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-500 cursor-pointer hover:scale-[1.02] ${animatedQuestions.includes(index) ? 'animate-in fade-in slide-in-from-bottom-4' : 'opacity-0'
@@ -347,13 +391,14 @@ export default function StackItUI() {
                                     </div>
                                  </div>
                               </div>
-                           ))
+                           ))}
+                           </>
                         )}
                      </div>
                   )}
 
                   {/* Pagination */}
-                  {!loading && !error && filteredQuestions.length > 0 && (
+                  {!loading && !error && filteredQuestions.length > 0 && totalPages > 1 && (
                      <div className="flex items-center justify-center space-x-3">
                         <button
                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -362,6 +407,19 @@ export default function StackItUI() {
                         >
                            <ChevronLeft className="w-5 h-5" />
                         </button>
+
+                        {/* First page */}
+                        {currentPage > 3 && totalPages > 5 && (
+                           <>
+                              <button
+                                 onClick={() => setCurrentPage(1)}
+                                 className="px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 bg-white/5 backdrop-blur-lg border border-white/10 hover:bg-white/10"
+                              >
+                                 1
+                              </button>
+                              {currentPage > 4 && <span className="text-gray-400">...</span>}
+                           </>
+                        )}
 
                         {pageNumbers.map((pageNum) => (
                            <button
@@ -375,6 +433,19 @@ export default function StackItUI() {
                               {pageNum}
                            </button>
                         ))}
+
+                        {/* Last page */}
+                        {currentPage < totalPages - 2 && totalPages > 5 && (
+                           <>
+                              {currentPage < totalPages - 3 && <span className="text-gray-400">...</span>}
+                              <button
+                                 onClick={() => setCurrentPage(totalPages)}
+                                 className="px-4 py-2 rounded-xl transition-all duration-300 hover:scale-105 bg-white/5 backdrop-blur-lg border border-white/10 hover:bg-white/10"
+                              >
+                                 {totalPages}
+                              </button>
+                           </>
+                        )}
 
                         <button
                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
