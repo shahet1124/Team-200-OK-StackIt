@@ -250,17 +250,17 @@ export default function AskNewQuestion() {
                         StackIT
                      </div>
                      <div className="flex items-center gap-6">
-                        <a href="#" className="text-gray-300 hover:text-white transition-all duration-300 hover:scale-105">
+                        <a href="/" className="text-gray-300 hover:text-white transition-all duration-300 hover:scale-105">
                            Home
                         </a>
-                        <div className="flex gap-3">
+                        {/* <div className="flex gap-3">
                            <div className="w-10 h-10 bg-gray-700 border border-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-600 transition-all duration-300 cursor-pointer hover:scale-110">
                               <span className="text-lg">🔔</span>
                            </div>
                            <div className="w-10 h-10 bg-gray-700 border border-gray-600 rounded-xl flex items-center justify-center hover:bg-gray-600 transition-all duration-300 cursor-pointer hover:scale-110">
                               <span className="text-lg">👤</span>
                            </div>
-                        </div>
+                        </div> */}
                      </div>
                   </div>
                </div>

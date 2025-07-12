@@ -520,7 +520,7 @@ export default function QuestionDetail() {
                         onClick={handleSubmitAnswer}
                         disabled={!editor?.getHTML() || editor.getHTML() === '<p></p>' || isSubmitting}
                         className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded transition-colors flex items-center space-x-2"
-                        disabled={(!newAnswer.trim() && isUserLoggedIn()) || isSubmitting}
+                        
                         className={`${
                            isUserLoggedIn() 
                               ? 'bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600' 
