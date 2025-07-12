@@ -167,7 +167,7 @@ export default function AMULoginPage() {
                      </h2>
                      <p className="text-gray-400 text-sm sm:text-base">
                         Don't have an account?
-                        <Link to="Register">
+                        <Link to="/Register">
                            <button className="text-purple-400 hover:text-purple-300 ml-1 underline transition-all duration-300 hover:scale-105 inline-block">
                               Sign up
                            </button>

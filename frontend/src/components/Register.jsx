@@ -426,14 +426,14 @@ export default function AMURegisterPage() {
                </div>
 
                {/* Divider */}
-               <AnimatedDiv delay={700} className="my-6 lg:my-8 flex items-center">
+               {/* <AnimatedDiv delay={700} className="my-6 lg:my-8 flex items-center">
                   <div className="flex-1 border-t border-gray-700"></div>
                   <div className="mx-4 text-gray-500 text-sm">Or register with</div>
                   <div className="flex-1 border-t border-gray-700"></div>
-               </AnimatedDiv>
+               </AnimatedDiv> */}
 
                {/* Social authentication buttons */}
-               <AnimatedDiv delay={900} className="grid grid-cols-2 gap-4">
+               {/* <AnimatedDiv delay={900} className="grid grid-cols-2 gap-4">
                   <button className="flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 text-white rounded-xl border border-gray-700/50 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-gray-700/25 active:scale-95 text-sm sm:text-base"
                      style={{ backdropFilter: 'blur(8px)' }}>
                      <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24">
@@ -452,7 +452,7 @@ export default function AMURegisterPage() {
                      </svg>
                      <span className="hidden sm:inline">Apple</span>
                   </button>
-               </AnimatedDiv>
+               </AnimatedDiv> */}
             </div>
          </AnimatedDiv>
       </div>
