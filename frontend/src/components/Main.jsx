@@ -6,6 +6,7 @@ import About from './About';
 import Services from './Services';
 import Contact from './Contact';
 import { Home, User, Briefcase, Mail, Settings, Star } from 'lucide-react';
+import StackItUI from './Home2';
 
 const Main = () => {
    // Custom navigation items
@@ -53,10 +54,10 @@ const Main = () => {
    };
 
    return (
-      <div className="min-h-screen" style={{ backgroundColor: '#141720' }}>
+      <div className="min-h-screen" style={{ backgroundColor: '#040404' }}>
          <GlassNavbar
-            logo="MyBrand"
-            logoIcon="M"
+            logo="StackIt"
+            logoIcon="S"
             navItems={customNavItems}
             ctaText="Get Started"
             onCtaClick={handleCtaClick}
@@ -64,10 +65,9 @@ const Main = () => {
 
          {/* Main Content */}
          <div className="pt-16">
-            <HomePage />
+            {/* <HomePage /> */}
+            <StackItUI/>
             <About />
-            <Services/>
-            <Contact />
          </div>
       </div>
    );
