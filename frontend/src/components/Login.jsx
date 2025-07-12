@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, ArrowRight, Lock, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom"
 
 const AnimatedDiv = ({ children, className, delay = 0, ...props }) => {
    const [isVisible, setIsVisible] = useState(false);
@@ -75,8 +75,6 @@ export default function AMULoginPage() {
       return () => clearInterval(interval);
    }, []);
 
-   
-
    const handleButtonClick = () => {
       // Log individual values
       console.log('Email:', email);
@@ -112,36 +110,45 @@ export default function AMULoginPage() {
 
          {/* Left side - Login form */}
          <AnimatedDiv
-            className={`flex-1 bg-gray-900 flex items-center justify-center p-8 relative ${isLoaded ? 'translate-x-0' : '-translate-x-full'
+            className={`w-full lg:flex-1 bg-gray-900 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative ${isLoaded ? 'translate-x-0' : '-translate-x-full'
                }`}
             delay={0}
          >
             <div className="w-full max-w-md">
+               {/* Mobile AMU Logo */}
+               <AnimatedDiv delay={200} className="block lg:hidden text-center mb-8">
+                  <div className="text-white text-3xl font-bold hover:scale-110 transition-all duration-300 cursor-pointer bg-white/10 rounded-lg px-4 py-2 border border-white/20 inline-block"
+                     style={{ backdropFilter: 'blur(8px)' }}>
+                     AMU
+                  </div>
+               </AnimatedDiv>
+
                <AnimatedDiv delay={300}>
-                  <div className="text-center mb-8">
-                     <div className="mb-6">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4 shadow-lg shadow-purple-500/25">
-                           <Lock className="w-8 h-8 text-white" />
+                  <div className="text-center mb-6 sm:mb-8">
+                     <div className="mb-4 sm:mb-6">
+                        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4 shadow-lg shadow-purple-500/25">
+                           <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                         </div>
                      </div>
-                     <h2 className="text-white text-3xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                     <h2 className="text-white text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                         Welcome Back
                      </h2>
-                     <p className="text-gray-400">
+                     <p className="text-gray-400 text-sm sm:text-base">
                         Don't have an account?
-                        <Link to="Register"><button className="text-purple-400 hover:text-purple-300 ml-1 underline transition-all duration-300 hover:scale-105 inline-block">
-                           Sign up
-                        </button></Link>
-                        
+                        <Link to="Register">
+                           <button className="text-purple-400 hover:text-purple-300 ml-1 underline transition-all duration-300 hover:scale-105 inline-block">
+                              Sign up
+                           </button>
+                        </Link>
                      </p>
                   </div>
                </AnimatedDiv>
 
                <div>
-                  <AnimatedDiv delay={500} className="space-y-6">
+                  <AnimatedDiv delay={500} className="space-y-4 sm:space-y-6">
                      {/* Email field */}
                      <div className="relative group">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                            <User className="h-5 w-5 text-gray-400" />
                         </div>
                         <input
@@ -150,7 +157,7 @@ export default function AMULoginPage() {
                            value={email}
                            onChange={(e) => setEmail(e.target.value)}
                            required
-                           className="w-full pl-10 pr-4 py-3 bg-gray-800/50 text-white rounded-xl border border-gray-700/50 focus:border-purple-500 focus:outline-none transition-all duration-300 placeholder-gray-500 focus:scale-[1.02] focus:shadow-lg focus:shadow-purple-500/25 hover:border-gray-600 hover:bg-gray-800/70"
+                           className="w-full pl-10 pr-4 py-3 bg-gray-800/50 text-white rounded-xl border border-gray-700/50 focus:border-purple-500 focus:outline-none transition-all duration-300 placeholder-gray-500 focus:scale-[1.02] focus:shadow-lg focus:shadow-purple-500/25 hover:border-gray-600 hover:bg-gray-800/70 text-base"
                            style={{ backdropFilter: 'blur(8px)' }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
@@ -158,7 +165,7 @@ export default function AMULoginPage() {
 
                      {/* Password field */}
                      <div className="relative group">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                            <Lock className="h-5 w-5 text-gray-400" />
                         </div>
                         <input
@@ -167,13 +174,13 @@ export default function AMULoginPage() {
                            value={password}
                            onChange={(e) => setPassword(e.target.value)}
                            required
-                           className="w-full pl-10 pr-12 py-3 bg-gray-800/50 text-white rounded-xl border border-gray-700/50 focus:border-purple-500 focus:outline-none transition-all duration-300 placeholder-gray-500 focus:scale-[1.02] focus:shadow-lg focus:shadow-purple-500/25 hover:border-gray-600 hover:bg-gray-800/70"
+                           className="w-full pl-10 pr-12 py-3 bg-gray-800/50 text-white rounded-xl border border-gray-700/50 focus:border-purple-500 focus:outline-none transition-all duration-300 placeholder-gray-500 focus:scale-[1.02] focus:shadow-lg focus:shadow-purple-500/25 hover:border-gray-600 hover:bg-gray-800/70 text-base"
                            style={{ backdropFilter: 'blur(8px)' }}
                         />
                         <button
                            type="button"
                            onClick={() => setShowPassword(!showPassword)}
-                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-all duration-300 hover:scale-110"
+                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-all duration-300 hover:scale-110 z-10"
                         >
                            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
@@ -202,7 +209,7 @@ export default function AMULoginPage() {
                      {/* Login button */}
                      <button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 relative overflow-hidden group"
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transform hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/25 active:scale-95 relative overflow-hidden group text-base"
                         onClick={handleButtonClick}
                      >
                         <span className="relative z-10 flex items-center justify-center gap-2">
@@ -210,7 +217,6 @@ export default function AMULoginPage() {
                            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                         </span>
                         <div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
                      </button>
                   </AnimatedDiv>
                </div>
@@ -221,12 +227,29 @@ export default function AMULoginPage() {
                   <div className="mx-4 text-gray-500 text-sm">Or continue with</div>
                   <div className="flex-1 border-t border-gray-700"></div>
                </AnimatedDiv>
+
+               {/* Social login buttons */}
+               <AnimatedDiv delay={800} className="space-y-4">
+                  <button className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-white/20 hover:border-white/30 text-base">
+                     Continue with Google
+                  </button>
+                  <button className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-white/20 hover:border-white/30 text-base">
+                     Continue with Apple
+                  </button>
+               </AnimatedDiv>
+
+               {/* Mobile hero text */}
+               <AnimatedDiv delay={900} className="block lg:hidden text-center mt-8">
+                  <p className="text-gray-400 text-sm">
+                     Continue your creative journey with AMU's powerful tools and features.
+                  </p>
+               </AnimatedDiv>
             </div>
          </AnimatedDiv>
 
-         {/* Right side - Hero section */}
+         {/* Right side - Hero section (hidden on mobile) */}
          <AnimatedDiv
-            className={`flex-1 relative bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 overflow-hidden ${isLoaded ? 'translate-x-0' : 'translate-x-full'
+            className={`hidden lg:flex lg:flex-1 relative bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 overflow-hidden ${isLoaded ? 'translate-x-0' : 'translate-x-full'
                }`}
             delay={0}
          >
@@ -256,7 +279,7 @@ export default function AMULoginPage() {
                className="absolute bottom-16 right-8 z-10"
                delay={700}
             >
-               <div className="bg-black/20 rounded-2xl p-8 border border-white/10 text-right"
+               <div className="bg-black/20 rounded-2xl p-8 border border-white/10 text-right max-w-md"
                   style={{ backdropFilter: 'blur(12px)' }}>
                   <h1 className="text-white text-4xl font-bold mb-4 leading-tight">
                      {heroTitles[currentImageIndex].split('\n').map((line, index) => (
