@@ -46,11 +46,49 @@ const Answers = ({ questionId }) => {
 
    const handleVote = async (answerId, voteType) => {
       try {
-         // Implement voting logic here
-         console.log(`Voting ${voteType} for answer ${answerId}`);
-         // You can add API call for voting here
+         // Convert voteType to vote value: upvote = 1, downvote = -1
+         const vote = voteType === 'upvote' ? 1 : -1;
+         const token = localStorage.getItem('token');
+         if(!token) {
+            alert('Please login to vote');
+            return;
+         }
+         
+         const response = await fetch(`${API_URL}/answers/${answerId}/vote`, {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store JWT token in localStorage
+            },
+            body: JSON.stringify({ vote })
+         });
+
+         if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to vote');
+         }
+
+         const result = await response.json();
+         
+         // Update the local state with new vote counts
+         setQuestionData(prevData => ({
+            ...prevData,
+            answers: prevData.answers.map(answer => 
+               answer._id === answerId 
+                  ? { 
+                      ...answer, 
+                      upvotes: result.upvotes,
+                      downvotes: result.downvotes
+                    }
+                  : answer
+            )
+         }));
+
+         console.log(`Successfully voted ${voteType} for answer ${answerId}`);
       } catch (err) {
          console.error('Error voting:', err);
+         // You might want to show a user-friendly error message here
+         alert(err.message);
       }
    };
 
