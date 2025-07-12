@@ -4,7 +4,7 @@ import {
    AlignLeft, AlignCenter, AlignRight, Smile, Send, Upload
 } from 'lucide-react';
 import Answers from './Questions/Answers';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function QuestionDetail() {
    const [newAnswer, setNewAnswer] = useState('');
@@ -17,6 +17,7 @@ export default function QuestionDetail() {
    const fileInputRef = useRef(null);
    //get variable from url with react hook
    const { questionId } = useParams();
+   const navigate = useNavigate();
 
    // Common emojis for quick insertion
    const commonEmojis = ['😀', '😂', '😍', '🤔', '👍', '👎', '❤️', '🔥', '💯', '🎉', '🚀', '💡', '⚡', '🌟', '✨', '🎯'];
@@ -194,7 +195,12 @@ export default function QuestionDetail() {
 
             {/* Breadcrumb Navigation */}
             <div className="flex items-center space-x-2 text-sm text-gray-400 mb-6">
-               <span className="hover:text-white cursor-pointer transition-colors">Questions</span>
+               <span 
+                  className="hover:text-white cursor-pointer transition-colors"
+                  onClick={() => navigate('/')}
+               >
+                  Questions
+               </span>
                <span className="text-gray-600">{'>'}</span>
                <span className="text-white max-w-md truncate" title={selectedQuestion?.title || 'Question Title'}>
                   {selectedQuestion?.title || 'Question Title'}

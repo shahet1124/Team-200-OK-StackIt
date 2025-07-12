@@ -220,7 +220,7 @@ export default function AMULoginPage() {
                      </div>
 
                      {/* Remember me and Forgot password */}
-                     <div className="flex items-center justify-between">
+                     {/* <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                            <input
                               type="checkbox"
@@ -236,7 +236,7 @@ export default function AMULoginPage() {
                         >
                            Forgot password?
                         </button>
-                     </div>
+                     </div> */}
 
                      {/* Login button */}
                      <button
@@ -264,21 +264,21 @@ export default function AMULoginPage() {
                </div>
 
                {/* Divider */}
-               <AnimatedDiv delay={700} className="my-8 flex items-center">
+               {/* <AnimatedDiv delay={700} className="my-8 flex items-center">
                   <div className="flex-1 border-t border-gray-700"></div>
                   <div className="mx-4 text-gray-500 text-sm">Or continue with</div>
                   <div className="flex-1 border-t border-gray-700"></div>
-               </AnimatedDiv>
+               </AnimatedDiv> */}
 
                {/* Social login buttons */}
-               <AnimatedDiv delay={800} className="space-y-4">
+               {/* <AnimatedDiv delay={800} className="space-y-4">
                   <button className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-white/20 hover:border-white/30 text-base">
                      Continue with Google
                   </button>
                   <button className="w-full bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-white/20 hover:border-white/30 text-base">
                      Continue with Apple
                   </button>
-               </AnimatedDiv>
+               </AnimatedDiv> */}
 
                {/* Mobile hero text */}
                <AnimatedDiv delay={900} className="block lg:hidden text-center mt-8">

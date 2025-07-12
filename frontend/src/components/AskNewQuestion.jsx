@@ -58,7 +58,7 @@ export default function AskNewQuestion() {
             <div className="max-w-4xl mx-auto">
                {/* Header */}
                <div className="mb-8 text-center">
-                  <div className="text-lg text-white/60 mb-1 font-light">Screen 2</div>
+                  {/* <div className="text-lg text-white/60 mb-1 font-light">Screen 2</div> */}
                   <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-2">
                      Ask Question
                   </div>
