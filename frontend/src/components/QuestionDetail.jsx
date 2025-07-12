@@ -149,13 +149,13 @@ export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                <div className="flex items-center space-x-4">
-                  <button
+                  {/* <button
                      onClick={onBackToHome}
                      className="text-blue-400 hover:text-blue-300 transition-colors flex items-center space-x-2"
                   >
                      <span>←</span>
                      <span>Back to Home</span>
-                  </button>
+                  </button> */}
                   <h1 className="text-3xl font-bold">StackIt</h1>
                </div>
                <div className="flex items-center space-x-4">
