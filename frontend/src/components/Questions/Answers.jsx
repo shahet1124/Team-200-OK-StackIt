@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Answers = ({ questionId }) => {
+const Answers = ({ questionId, refresh }) => {
    const [questionData, setQuestionData] = useState(null);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
@@ -9,7 +9,7 @@ const Answers = ({ questionId }) => {
 
    useEffect(() => {
       fetchQuestionData();
-   }, [questionId]);
+   }, [questionId, refresh]);
 
    const fetchQuestionData = async () => {
       try {
@@ -145,9 +145,9 @@ const Answers = ({ questionId }) => {
                         </button>
                      </div>
                      <div className="flex-1">
-                        <p className="text-gray-300 mb-3 leading-relaxed">
-                           {answer.content}
-                        </p>
+                        <div className="text-gray-300 mb-3 leading-relaxed" 
+                             dangerouslySetInnerHTML={{ __html: answer.content }}>
+                        </div>
                         <div className="text-sm text-gray-400 flex items-center space-x-4">
                            <span>Answered by {answer.userId.username}</span>
                            <span>{formatTimeAgo(answer.createdAt)}</span>
