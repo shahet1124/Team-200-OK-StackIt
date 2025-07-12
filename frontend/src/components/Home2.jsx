@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import QuestionDetail from './QuestionDetail';
 
 export default function StackItUI() {
    const [selectedFilter, setSelectedFilter] = useState('Newest Unanswered');
@@ -8,6 +9,8 @@ export default function StackItUI() {
    const [questions, setQuestions] = useState([]);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
+   const [currentScreen, setCurrentScreen] = useState(1); // 1 = Home, 3 = Question Detail
+   const [selectedQuestion, setSelectedQuestion] = useState(null);
 
    // Fetch questions from API using fetch
    useEffect(() => {
@@ -52,6 +55,17 @@ export default function StackItUI() {
       fetchQuestions();
    }, []);
 
+   // Handle question click
+   const handleQuestionClick = (question) => {
+      setSelectedQuestion(question);
+      setCurrentScreen(3);
+   };
+
+   // Handle back to home
+   const handleBackToHome = () => {
+      setCurrentScreen(1);
+      setSelectedQuestion(null);
+   };
 
    const filterOptions = [
       'Newest Unanswered',
@@ -69,7 +83,8 @@ export default function StackItUI() {
       question.description?.toLowerCase().includes(searchQuery.toLowerCase())
    );
 
-   return (
+   // Render Screen 1 - Home Page
+   const renderHomePage = () => (
       <div className="min-h-screen text-white p-6" style={{ backgroundColor: '#141720' }}>
          <div className="max-w-6xl mx-auto">
             {/* Header */}
@@ -147,7 +162,10 @@ export default function StackItUI() {
                            <div key={question._id || question.id} className="border-b border-gray-700 pb-4">
                               <div className="flex items-start justify-between">
                                  <div className="flex-1">
-                                    <h3 className="text-lg font-medium mb-2 hover:text-blue-400 cursor-pointer">
+                                    <h3
+                                       className="text-lg font-medium mb-2 hover:text-blue-400 cursor-pointer"
+                                       onClick={() => handleQuestionClick(question)}
+                                    >
                                        {question.title || 'Untitled Question'}
                                     </h3>
                                     <p className="text-gray-300 text-sm mb-3 line-clamp-2">
@@ -180,7 +198,7 @@ export default function StackItUI() {
                                  </div>
                                  <div className="ml-4 flex-shrink-0">
                                     <div className="bg-gray-700 text-white text-sm px-3 py-1 rounded">
-                                       {question.answers || question.answer_count || 0} ans
+                                       {question.answerCount || question.answerCount || 0} ans
                                     </div>
                                  </div>
                               </div>
@@ -230,6 +248,19 @@ export default function StackItUI() {
                <p className="text-gray-400 text-sm">Pagination</p>
             </div>
          </div>
+      </div>
+   );
+
+   // Main render function
+   return (
+      <div>
+         {currentScreen === 1 && renderHomePage()}
+         {currentScreen === 3 && (
+            <QuestionDetail
+               selectedQuestion={selectedQuestion}
+               onBackToHome={handleBackToHome}
+            />
+         )}
       </div>
    );
 }
