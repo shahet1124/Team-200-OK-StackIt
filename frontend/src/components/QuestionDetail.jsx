@@ -192,6 +192,15 @@ export default function QuestionDetail() {
                </div>
             </div>
 
+            {/* Breadcrumb Navigation */}
+            <div className="flex items-center space-x-2 text-sm text-gray-400 mb-6">
+               <span className="hover:text-white cursor-pointer transition-colors">Questions</span>
+               <span className="text-gray-600">{'>'}</span>
+               <span className="text-white max-w-md truncate" title={selectedQuestion?.title || 'Question Title'}>
+                  {selectedQuestion?.title || 'Question Title'}
+               </span>
+            </div>
+
             {/* Question Detail */}
             <div className="border border-gray-600 rounded-lg p-6 mb-6 bg-gray-800/30">
                <h2 className="text-2xl font-bold mb-4">{selectedQuestion?.title || 'Question Title'}</h2>
