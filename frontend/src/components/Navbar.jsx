@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Home, User, Briefcase, Mail, Settings, ChevronDown } from 'lucide-react';
+import { Menu, X, Home, User, Briefcase, Mail, Settings, ChevronDown, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { isUserLoggedIn, getCurrentUser, logoutUser } from '../utils/check.js';
 
 const GlassNavbar = ({
    logo = "GlassNav",
@@ -14,14 +15,46 @@ const GlassNavbar = ({
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
    const [activeDropdown, setActiveDropdown] = useState(null);
    const [isLoaded, setIsLoaded] = useState(false);
+   const [currentUser, setCurrentUser] = useState(null);
+   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
    useEffect(() => {
       setIsLoaded(true);
+      
+      // Check login status and get current user
+      const checkLoginStatus = () => {
+         const loginStatus = isUserLoggedIn();
+         setIsLoggedIn(loginStatus);
+         
+         if (loginStatus) {
+            const user = getCurrentUser();
+            setCurrentUser(user);
+         } else {
+            setCurrentUser(null);
+         }
+      };
+      
+      // Initial check
+      checkLoginStatus();
+      
+      // Set up scroll handler
       const handleScroll = () => {
          setIsScrolled(window.scrollY > 20);
       };
+      
       window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
+      
+      // Listen for storage changes (for when user logs in/out in another tab)
+      const handleStorageChange = () => {
+         checkLoginStatus();
+      };
+      
+      window.addEventListener('storage', handleStorageChange);
+      
+      return () => {
+         window.removeEventListener('scroll', handleScroll);
+         window.removeEventListener('storage', handleStorageChange);
+      };
    }, []);
 
    // Default nav items - only Home
@@ -39,6 +72,13 @@ const GlassNavbar = ({
       if (item.onClick) {
          item.onClick();
       }
+      setIsMobileMenuOpen(false);
+   };
+
+   const handleLogout = () => {
+      logoutUser();
+      setIsLoggedIn(false);
+      setCurrentUser(null);
       setIsMobileMenuOpen(false);
    };
 
@@ -73,28 +113,47 @@ const GlassNavbar = ({
 
                {/* Desktop Navigation - Hidden since only Home */}
 
-               {/* CTA Button */}
+               {/* CTA Button or User Info */}
                <div className={`hidden md:flex items-center space-x-4 transition-all duration-700 delay-500 ${isLoaded ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
                   }`}>
-                  <Link to="/login">
-                     <button
-                        onClick={onCtaClick}
-                        className="px-6 py-2 font-medium transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/30 hover:-translate-y-1 active:scale-95 transform"
-                        style={{
-                           background: 'linear-gradient(135deg, #0bab7d, #c9f5c4)',
-                           color: '#111827',
-                           borderRadius: '5px'
-                        }}
-                        onMouseEnter={(e) => {
-                           e.target.style.background = 'linear-gradient(135deg, #0bab7d, #c9f5c4, #bfb5fe)';
-                        }}
-                        onMouseLeave={(e) => {
-                           e.target.style.background = 'linear-gradient(135deg, #0bab7d, #c9f5c4)';
-                        }}
-                     >
-                        Login
-                     </button>
-                  </Link>
+                  {isLoggedIn && currentUser ? (
+                     <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                           <User size={20} className="text-emerald-300" />
+                           <span className="text-white font-medium">
+                              {currentUser.username || currentUser.name || 'User'}
+                           </span>
+                        </div>
+                        <button
+                           onClick={handleLogout}
+                           className="flex items-center space-x-2 px-4 py-2 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 transform bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 border border-red-500/30 rounded-lg"
+                           title="Logout"
+                        >
+                           <LogOut size={18} />
+                           <span>Logout</span>
+                        </button>
+                     </div>
+                  ) : (
+                     <Link to="/login">
+                        <button
+                           onClick={onCtaClick}
+                           className="px-6 py-2 font-medium transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/30 hover:-translate-y-1 active:scale-95 transform"
+                           style={{
+                              background: 'linear-gradient(135deg, #0bab7d, #c9f5c4)',
+                              color: '#111827',
+                              borderRadius: '5px'
+                           }}
+                           onMouseEnter={(e) => {
+                              e.target.style.background = 'linear-gradient(135deg, #0bab7d, #c9f5c4, #bfb5fe)';
+                           }}
+                           onMouseLeave={(e) => {
+                              e.target.style.background = 'linear-gradient(135deg, #0bab7d, #c9f5c4)';
+                           }}
+                        >
+                           Login
+                        </button>
+                     </Link>
+                  )}
                </div>
 
                {/* Mobile Menu Button */}
@@ -179,20 +238,38 @@ const GlassNavbar = ({
 
                <div className={`pt-4 border-t border-white/20 transition-all duration-700 ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                   }`} style={{ transitionDelay: '400ms' }}>
-                  <button
-                     onClick={() => {
-                        onCtaClick();
-                        setIsMobileMenuOpen(false);
-                     }}
-                     className="w-full px-4 py-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 transform"
-                     style={{
-                        background: 'linear-gradient(135deg, #0bab7d, #c9f5c4)',
-                        color: '#111827',
-                        borderRadius: '5px'
-                     }}
-                  >
-                     {ctaText}
-                  </button>
+                  {isLoggedIn && currentUser ? (
+                     <div className="space-y-3">
+                        <div className="flex items-center space-x-3 px-4 py-3 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                           <User size={20} className="text-emerald-300" />
+                           <span className="text-white font-medium">
+                              {currentUser.username || currentUser.name || 'User'}
+                           </span>
+                        </div>
+                        <button
+                           onClick={handleLogout}
+                           className="w-full flex items-center justify-center space-x-2 px-4 py-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 transform bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 border border-red-500/30 rounded-lg"
+                        >
+                           <LogOut size={18} />
+                           <span>Logout</span>
+                        </button>
+                     </div>
+                  ) : (
+                     <button
+                        onClick={() => {
+                           onCtaClick();
+                           setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full px-4 py-3 font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 transform"
+                        style={{
+                           background: 'linear-gradient(135deg, #0bab7d, #c9f5c4)',
+                           color: '#111827',
+                           borderRadius: '5px'
+                        }}
+                     >
+                        {ctaText}
+                     </button>
+                  )}
                </div>
             </div>
          </div>
