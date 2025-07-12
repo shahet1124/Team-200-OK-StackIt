@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import QuestionDetail from './QuestionDetail';
+import { useNavigate } from 'react-router-dom';
 
 export default function StackItUI() {
    const [selectedFilter, setSelectedFilter] = useState('Newest Unanswered');
@@ -9,8 +9,7 @@ export default function StackItUI() {
    const [questions, setQuestions] = useState([]);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
-   const [currentScreen, setCurrentScreen] = useState(1); // 1 = Home, 3 = Question Detail
-   const [selectedQuestion, setSelectedQuestion] = useState(null);
+   const navigate = useNavigate();
 
    const API_URL = import.meta.env.VITE_API_URL;
 
@@ -59,14 +58,8 @@ export default function StackItUI() {
 
    // Handle question click
    const handleQuestionClick = (question) => {
-      setSelectedQuestion(question);
-      setCurrentScreen(3);
-   };
-
-   // Handle back to home
-   const handleBackToHome = () => {
-      setCurrentScreen(1);
-      setSelectedQuestion(null);
+      const questionId = question._id;
+      navigate(`/question/${questionId}`);
    };
 
    const filterOptions = [
@@ -85,8 +78,7 @@ export default function StackItUI() {
       question.description?.toLowerCase().includes(searchQuery.toLowerCase())
    );
 
-   // Render Screen 1 - Home Page
-   const renderHomePage = () => (
+   return (
       <div className="min-h-screen text-white p-6" style={{ backgroundColor: '#141720' }}>
          <div className="max-w-6xl mx-auto">
             {/* Header */}
@@ -250,19 +242,6 @@ export default function StackItUI() {
                <p className="text-gray-400 text-sm">Pagination</p>
             </div>
          </div>
-      </div>
-   );
-
-   // Main render function
-   return (
-      <div>
-         {currentScreen === 1 && renderHomePage()}
-         {currentScreen === 3 && (
-            <QuestionDetail
-               selectedQuestion={selectedQuestion}
-               onBackToHome={handleBackToHome}
-            />
-         )}
       </div>
    );
 }

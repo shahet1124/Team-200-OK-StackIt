@@ -4,6 +4,7 @@ import {
    AlignLeft, AlignCenter, AlignRight, Smile, Send, Upload
 } from 'lucide-react';
 import Answers from './Questions/Answers';
+import { useParams } from 'react-router-dom';
 
 export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
    const [newAnswer, setNewAnswer] = useState('');
@@ -14,6 +15,8 @@ export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
    const [isSubmitting, setIsSubmitting] = useState(false);
    const textareaRef = useRef(null);
    const fileInputRef = useRef(null);
+   //get variable from url with react hook
+   const { questionId } = useParams();
 
    // Common emojis for quick insertion
    const commonEmojis = ['😀', '😂', '😍', '🤔', '👍', '👎', '❤️', '🔥', '💯', '🎉', '🚀', '💡', '⚡', '🌟', '✨', '🎯'];
@@ -198,8 +201,7 @@ export default function QuestionDetail({ selectedQuestion, onBackToHome }) {
                   </span>
                </div>
             </div>
-            {console.log("selectedQuestion",selectedQuestion)}
-            <Answers questionId={selectedQuestion._id} />
+            <Answers questionId={questionId} />
 
             {/* Answers Section */}
             {/* <div className="border border-gray-600 rounded-lg p-6 mb-6 bg-gray-800/30">
